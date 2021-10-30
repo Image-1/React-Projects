@@ -1,7 +1,9 @@
 import React, { useState } from 'react'
-import { Button, Container, Fab, FormControlLabel, FormLabel, makeStyles, MenuItem, Modal, Radio, RadioGroup, TextField, Tooltip } from '@material-ui/core';
+import { Button, Container, Fab, FormControlLabel, FormLabel, makeStyles, MenuItem, Modal, Radio, RadioGroup, Snackbar, TextField, Tooltip } from '@material-ui/core';
 import Post from './Post';
 import { Add } from '@material-ui/icons';
+import MuiAlert from '@material-ui/lab/Alert';
+
 const Options = [
     {
       value: 'Public',
@@ -17,6 +19,11 @@ const Options = [
     },
   ];
 
+function CustomAlert(props){
+    return(
+        <MuiAlert variant="filled" elevation ={6} {...props} />
+    )
+}
   
 const useStyles = makeStyles((theme)=>({
     fab:{
@@ -37,15 +44,25 @@ const useStyles = makeStyles((theme)=>({
         [theme.breakpoints.down("600")]:{
             height:"100vh",
             width:"100vw",
-        },
-        
-        
+        },      
+    },
+    form:{
+        padding:theme.spacing(1)
+    },
+    items:{
+        marginBottom:theme.spacing(3)
     }
 }))
 
 const AddComponent = () => {
     const classes = useStyles();
     const [open, setOpen] = useState(false);
+    const [openAlert, setOpenAlert] = useState({
+        openA:false,
+        type:"success",
+        alertMessage:"No message input given"
+    });
+    const {openA, type, alertMessage} = openAlert;
     return (
         <>
         <Tooltip title="Add" aria-label = "add" onClick = {()=>setOpen(true)}>
@@ -70,7 +87,7 @@ const AddComponent = () => {
                         <TextField 
                             multiline
                             variant="outlined"
-                            defaultValue="Discription needed to add."
+                            defaultValue="Description needed to add."
                             rows = {4}
                             label = "Description"
                             style={{width:"100%"}}
@@ -112,12 +129,26 @@ const AddComponent = () => {
                         </RadioGroup>
                     </div>
                     <div className={classes.items} >
-                        <Button variant="outlined" color="primary" style={{marginRight:20}} onClick={() =>setOpen(false)}>Create</Button>
-                        <Button variant="outlined" color="secondary" onClick={() =>setOpen(false)}>Cancel</Button>
+                        <Button variant="outlined" color="primary" style={{marginRight:20}} onClick={() =>{
+                            // setOpen(false)
+                            setOpenAlert({openA:true, type:"success", alertMessage:"The Post created"})
+                            }}>Create</Button>
+                        <Button variant="outlined" color="secondary" onClick={() =>{
+                            setOpen(false)
+                            setOpenAlert({openA:true, type:"warning", alertMessage:"The Post cancelled"})
+                            }}>Cancel</Button>
                     </div>
                 </form>
             </Container>
         </Modal>
+        <Snackbar 
+        open={openA} 
+        autoHideDuration={3000} 
+        anchorOrigin={{vertical:"bottom", horizontal:"left"}} 
+        onClose={()=>setOpenAlert({...openAlert, openA:false})}
+        >
+            <CustomAlert onClose={()=>setOpenAlert({...openAlert, openA:false})} severity={type}>{alertMessage}</CustomAlert>
+        </Snackbar>
         </>
     )
 }
